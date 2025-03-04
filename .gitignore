@@ -31,4 +31,4 @@ Thumbs.db
 
 # Whisper model cache
 *.pt
-*.bin
+*.bin"venv/" 
