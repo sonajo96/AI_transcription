@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Transcription</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Video Transcription</h1>
+        
+        <div id="auth">
+            <a href="signup.html">Signup</a> | <a href="login.html">Login</a>
+        </div>
+        
+        <div id="transcription-section">
+            <h2>Transcribe Video</h2>
+            <input type="text" id="video-url" placeholder="Enter video URL">
+            <button onclick="transcribeVideo()">Transcribe</button>
+            <p id="transcription-status"></p>
+        </div>
+        
+        <div id="qa-section">
+            <h2>Ask AI</h2>
+            <input type="text" id="video_url" placeholder="Enter video URL">
+            <input type="text" id="question" placeholder="Enter your question">
+            <button onclick="handleAskQuestion()">Ask</button>
+            <p id="answer"></p>
+        </div>
+        
+        
+        <div>
+            <h2>Chat History</h2>
+            <button onclick="fetchChatHistory()">Get Chat History</button>
+            <ul id="chat-history"></ul>
+        </div>
+
+        <div>
+            <button id="logoutBtn">Logout</button>
+        </div>
+        
+
+    <script src="script.js" defer></script>
+</body>
+</html>
