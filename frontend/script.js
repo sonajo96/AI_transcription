@@ -54,9 +54,18 @@ async function transcribeVideo() {
     const data = await response.json();
     document.getElementById("transcription-status").textContent = data.status;
 }
+
+
 async function askQuestion(video_url, question) {
     try {
         const token = sessionStorage.getItem("token");
+
+        // Check if token exists
+        if (!token) {
+            alert("You must be logged in to ask a question. Redirecting to login...");
+            window.location.href = "login.html";
+            return;
+        }
 
         // Send the question and video URL to the server
         const response = await fetch("http://127.0.0.1:8000/ask/", {
@@ -69,8 +78,22 @@ async function askQuestion(video_url, question) {
             body: JSON.stringify({ url: video_url, question }) // Send both video URL and question
         });
 
+        // Handle different response statuses
+        if (response.status === 401) {
+            alert("Session expired or invalid token. Please log in again.");
+            logout();
+            return;
+        }
+
+        if (response.status === 404) {
+            const errorData = await response.json();
+            alert(errorData.detail || "Video not found or you don't have access to it.");
+            return;
+        }
+
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const errorData = await response.json();
+            throw new Error(errorData.detail || `HTTP error! Status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -82,7 +105,8 @@ async function askQuestion(video_url, question) {
         // Immediately fetch and display the updated chat history
         await fetchChatHistory();
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error asking question:", error);
+        alert(`Failed to get answer: ${error.message}`);
     }
 }
 
@@ -97,6 +121,7 @@ function handleAskQuestion() {
 
     askQuestion(video_url, question);
 }
+
 async function fetchChatHistory() {
     try {
         const token = sessionStorage.getItem("token");
