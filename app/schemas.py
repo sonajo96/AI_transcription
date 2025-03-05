@@ -13,5 +13,5 @@ class VideoCreate(BaseModel):
     url: str
 
 class ChatRequest(BaseModel):
-    url: str
     question: str
+    

@@ -1,25 +1,45 @@
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.video import Video
-from app.models.user import User
-from app.services.video_services import process_video
-from app.schemas import VideoCreate
+from app.services.video_services import transcribe_audio_file
 from app.auth import get_current_user
 
 router = APIRouter()
 
-@router.post("/transcribe/")
-def transcribe_video(video: VideoCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    background_tasks.add_task(process_video, video.url, user_id, db)
-    return {"status": "processing"}
+@router.post("/transcribe/audio/")
+async def transcribe_audio(
+    audio: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user)
+):
+    """
+    Endpoint to upload an audio file, transcribe it into text, and optionally save it.
+    
+    Args:
+        audio (UploadFile): The audio file to transcribe.
+        db (Session): Database session dependency.
+        current_user_id (int): ID of the authenticated user.
+    
+    Returns:
+        dict: Contains the transcription text.
+    """
+    # Transcribe the audio file
+    transcription = transcribe_audio_file(audio)
 
-@router.get("/videos/{user_id}")
-def get_videos(user_id: int, db: Session = Depends(get_db)):
-    videos = db.query(Video).filter(Video.user_id == user_id).all()
-    if not videos:
-        raise HTTPException(status_code=404, detail="No videos found for this user")
-    return [{"video_url": v.video_url, "transcription": v.transcription} for v in videos]
+    # Optionally save the transcription with a video entry (assuming a URL or placeholder)
+    video = Video(
+        user_id=current_user_id,
+        video_url=f"audio://{audio.filename}",  # Placeholder; adjust as needed
+        transcription=transcription
+    )
+    
+    try:
+        db.add(video)
+        db.commit()
+        db.refresh(video)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to save transcription: {str(e)}")
+
+    return {"transcription": transcription, "video_id": video.id}

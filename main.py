@@ -4,6 +4,11 @@ from app.config import settings
 from app.database import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import warnings
+
+
+warnings.simplefilter("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", message="FP16 is not supported on CPU; using FP32 instead")
 
 app = FastAPI()
 

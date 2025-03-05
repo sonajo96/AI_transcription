@@ -11,4 +11,3 @@ class Video(Base):
     transcription = Column(Text, nullable=True)
 
     user = relationship("User", back_populates="videos")
-    chat_history = relationship("ChatHistory", back_populates="video", cascade="all, delete")

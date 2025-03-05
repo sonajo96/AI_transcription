@@ -1,5 +1,3 @@
-
-
 async function signup() {
     const mobile_phone = document.getElementById("signup-phone").value;
     const name = document.getElementById("signup-name").value;
@@ -35,28 +33,70 @@ async function login() {
     }
 }
 
-async function transcribeVideo() {
-    const video_url = document.getElementById("video-url").value;
+async function transcribeAudioFile() {
+    const fileInput = document.getElementById("audio-file");
+    const file = fileInput.files[0];
     const token = sessionStorage.getItem("token");
 
-    const response = await fetch("http://localhost:8000/transcribe/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ url: video_url })
-    });
-
-    if (response.status === 401) {
-        alert("Session expired. Please log in again.");
-        logout();
+    if (!file) {
+        alert("Please select an audio file.");
         return;
     }
 
-    const data = await response.json();
-    document.getElementById("transcription-status").textContent = data.status;
+    // Show loading indicator
+    const transcriptionStatus = document.getElementById("transcription-status");
+    if (!transcriptionStatus) {
+        console.error("transcription-status element not found!");
+        return;
+    }
+    transcriptionStatus.textContent = "⏳ Transcribing audio... Please wait.";
+    transcriptionStatus.style.color = "blue";
+
+    const formData = new FormData();
+    formData.append("audio", file);
+
+    try {
+        const response = await fetch("http://localhost:8000/transcribe/audio/", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` },
+            body: formData
+        });
+
+        console.log("Response status:", response.status); // Log the response status
+        console.log("Response headers:", response.headers); // Log the response headers
+
+        // Handle token expiration (401 Unauthorized)
+        if (response.status === 401) {
+            alert("Your session has expired. Please log in again.");
+            logout(); // Call the logout function to clear the token and redirect to the login page
+            return;
+        }
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log("Server Response Data:", data); // Log the full response data
+
+            const audioTranscription = document.getElementById("audio-transcription");
+            if (!audioTranscription) {
+                console.error("audio-transcription element not found!");
+                return;
+            }
+            audioTranscription.textContent = data.transcription;
+
+            transcriptionStatus.textContent = "✅ Transcription Completed!";
+            transcriptionStatus.style.color = "green";
+        } else {
+            console.error("Server Response Error:", response.status, response.statusText);
+            throw new Error("Failed to transcribe audio.");
+        }
+    } catch (error) {
+        console.error("Error transcribing audio:", error);
+        transcriptionStatus.textContent = "❌ Failed to transcribe audio. Please try again.";
+        transcriptionStatus.style.color = "red";
+    }
 }
 
-
-async function askQuestion(video_url, question) {
+async function askQuestion(question) {
     try {
         const token = sessionStorage.getItem("token");
 
@@ -67,7 +107,7 @@ async function askQuestion(video_url, question) {
             return;
         }
 
-        // Send the question and video URL to the server
+        // Send the question to the server
         const response = await fetch("http://127.0.0.1:8000/ask/", {
             method: "POST",
             headers: { 
@@ -75,19 +115,13 @@ async function askQuestion(video_url, question) {
                 "Accept": "application/json",
                 "Authorization": `Bearer ${token}` // Include the token for authenticated requests
             },
-            body: JSON.stringify({ url: video_url, question }) // Send both video URL and question
+            body: JSON.stringify({ question }) // Send only the question
         });
 
         // Handle different response statuses
         if (response.status === 401) {
             alert("Session expired or invalid token. Please log in again.");
             logout();
-            return;
-        }
-
-        if (response.status === 404) {
-            const errorData = await response.json();
-            alert(errorData.detail || "Video not found or you don't have access to it.");
             return;
         }
 
@@ -111,15 +145,14 @@ async function askQuestion(video_url, question) {
 }
 
 function handleAskQuestion() {
-    const video_url = document.getElementById("video_url").value.trim();
     const question = document.getElementById("question").value.trim();
 
-    if (!video_url || !question) {
-        alert("Please enter both a video URL and a question.");
+    if (!question) {
+        alert("Please enter a question.");
         return;
     }
 
-    askQuestion(video_url, question);
+    askQuestion(question);
 }
 
 async function fetchChatHistory() {
@@ -167,6 +200,7 @@ async function fetchChatHistory() {
         console.error("Error fetching chat history:", error);
     }
 }
+
 function checkSession() {
     const token = sessionStorage.getItem("token");
 
@@ -187,7 +221,6 @@ function checkSession() {
         const currentTime = Date.now();
         const timeRemaining = exp - currentTime;
 
-
         console.log(`Token Expiry Time: ${new Date(exp).toLocaleString()}`);
         console.log(`Current Time: ${new Date(currentTime).toLocaleString()}`);
         console.log(`Time Until Expiration: ${timeRemaining / 1000} seconds`);
@@ -207,10 +240,6 @@ function checkSession() {
         logout();
     }
 }
-
-
-
-
 
 // ✅ Logout function
 async function logout() {
@@ -245,7 +274,3 @@ document.addEventListener("DOMContentLoaded", function () {
         logoutBtn.addEventListener("click", logout);
     }
 });
-
-
-
-
