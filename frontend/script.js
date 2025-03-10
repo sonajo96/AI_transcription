@@ -3,22 +3,50 @@ async function signup() {
     const name = document.getElementById("signup-name").value;
     const password = document.getElementById("signup-password").value;
 
-    const response = await fetch("http://localhost:8000/signup/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile_phone, name, password })
-    });
+    // Validate mobile number length
+    if (mobile_phone.length !== 10) {
+        alert("Please enter a 10-digit mobile number.");
+        return; // Stop execution if validation fails
+    }
 
-    const data = await response.json();
-    alert(data.message);
-    if (response.ok) window.location.href = "login.html";
+    try {
+        const response = await fetch("http://127.0.0.1:8001/signup/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mobile_phone, name, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(data.message); // Success message from the server
+            window.location.href = "login.html"; // Redirect to login page
+        } else {
+            // Handle specific error cases
+            if (response.status === 400 && data.detail === "Mobile number already registered") {
+                alert("You're already signed up. Redirecting to the login page...");
+                window.location.href = "login.html"; // Redirect to login page
+            } else {
+                alert("Signup failed: " + (data.detail || "Unknown error")); // Show error message
+            }
+        }
+    } catch (error) {
+        console.error("Error during signup:", error);
+        alert("An error occurred during signup. Please try again.");
+    }
 }
 
 async function login() {
     const mobile_phone = document.getElementById("login-phone").value;
     const password = document.getElementById("login-password").value;
 
-    const response = await fetch("http://localhost:8000/login/", {
+    // Validate mobile number length
+    if (mobile_phone.length !== 10) {
+        alert("Please enter a 10-digit mobile number.");
+        return; // Stop execution if validation fails
+    }
+
+    const response = await fetch("http://127.0.0.1:8001/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mobile_phone, password })
@@ -56,7 +84,7 @@ async function transcribeAudioFile() {
     formData.append("audio", file);
 
     try {
-        const response = await fetch("http://localhost:8000/transcribe/audio/", {
+        const response = await fetch("http://127.0.0.1:8001/transcribe/audio/", {
             method: "POST",
             headers: { "Authorization": `Bearer ${token}` },
             body: formData
@@ -108,7 +136,7 @@ async function askQuestion(question) {
         }
 
         // Send the question to the server
-        const response = await fetch("http://127.0.0.1:8000/ask/", {
+        const response = await fetch("http://127.0.0.1:8001/ask/", {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
@@ -165,7 +193,7 @@ async function fetchChatHistory() {
         }
 
         // Fetch the latest chat history from the server
-        const response = await fetch("http://localhost:8000/chathistory/", {
+        const response = await fetch("http://127.0.0.1:8001/chathistory/", {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -248,7 +276,7 @@ async function logout() {
     if (token) {
         try {
             // Call the logout endpoint to invalidate the token
-            await fetch("http://localhost:8000/logout/", {
+            await fetch("http://127.0.0.1:8001/logout/", {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,
