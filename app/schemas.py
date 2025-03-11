@@ -28,6 +28,10 @@ class UserLogin(BaseModel):
 class VideoCreate(BaseModel):
     url: str
 
+class YouTubeTranscriptionRequest(BaseModel):
+    video_id: str
+
+
 class ChatRequest(BaseModel):
     question: str
     

@@ -3,21 +3,24 @@ body {
     background-color: #f4f4f4;
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh; /* Allow scrolling */
+    align-items: flex-start; /* Align items to the top */
+    min-height: 100vh;
     margin: 0;
-    overflow-y: auto;  /* Enable scrolling */
-    flex-direction: column; /* Let content grow vertically */
+    overflow-y: auto;
+    flex-direction: column;
 }
 
 .container {
     background: white;
-    padding: 20px;
+    padding: 20px 40px; /* Add padding to left and right for gap */
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    width: 100%;
+    width: calc(100% - 80px); /* Adjust width to account for padding */
+    height: 100vh; /* Full height of the screen */
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Add gap between sections */
 }
 
 h1, h2 {
@@ -25,7 +28,7 @@ h1, h2 {
 }
 
 input {
-    width: 100%;
+    width: 90%;
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ccc;
@@ -33,7 +36,7 @@ input {
 }
 
 button {
-    width: 100%;
+    width: 50%;
     padding: 10px;
     background: #28a745;
     color: white;
@@ -53,4 +56,226 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+#auth {
+    margin-bottom: 20px;
+}
+
+#main-content {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 100%;
+    height: calc(100vh - 120px); /* Adjust height to fit within the container */
+}
+
+#chat-history-section {
+    flex: 1;
+    max-width: 300px; /* Fixed width for chat history */
+    text-align: left;
+    height: 100%; /* Full height of the parent */
+    overflow-y: auto; /* Enable vertical scrollbar */
+    border: 1px solid #ddd; /* Optional: Add a border for better visibility */
+    border-radius: 5px; /* Optional: Add border radius */
+    padding: 10px; /* Optional: Add padding */
+    background-color: #f9f9f9; /* Light background for chat history */
+}
+
+#chat-history-section button {
+    width: auto; /* Make the button size based on content */
+    display: inline-block; /* Keep it in a single line */
+    margin-bottom: 10px; /* Add some spacing below */
+}
+
+#center-section {
+    flex: 3; /* Take up more space in the center */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Add gap between sections */
+    padding: 20px; /* Add padding for better spacing */
+    background-color: white; /* Background for center section */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: calc(100% - 340px); /* Adjust width to fill remaining space */
+    height: 100%; /* Full height of the parent */
+}
+
+#youtube-transcription-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#youtube-transcription-section input {
+    width: 90%; /* Adjust input width */
+    padding: 10px;
+    margin: 10px 0; /* Add margin to create space between input and button */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#youtube-transcription-section button {
+    width: auto; /* Adjust button width */
+    padding: 10px 20px; /* Add padding for better button size */
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#youtube-transcription-section button:hover {
+    background: #218838;
+}
+
+#qa-section {
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+#qa-section input {
+    width: 90%; /* Adjust input width */
+    padding: 10px;
+    margin: 10px 0; /* Add margin to create space between input and button */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#qa-section button {
+    width: auto; /* Adjust button width */
+    padding: 10px 20px; /* Add padding for better button size */
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#qa-section button:hover {
+    background: #218838;
+}
+
+#question-input {
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
+/* Make only the answer section scrollable */
+#answer {
+    height: 150px; /* Fixed height for the answer section */
+    overflow-y: auto; /* Make the answer section scrollable */
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: white;
+    text-align: left;
+    margin-top: 10px; /* Add margin to create space between button and answer */
+}
+
+#chat-history {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#chat-history li {
+    background: #fff;
+    margin: 10px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#chat-history li strong {
+    color: #333;
+    font-weight: bold;
+}
+
+#chat-history li p {
+    margin: 5px 0;
+    color: #555;
+}
+
+#logoutBtn {
+    width: 35%; /* Same width as other buttons */
+    padding: 10px; /* Same padding as other buttons */
+    background: #28a745; /* Same background color as other buttons */
+    color: white; /* Same text color as other buttons */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Same border radius as other buttons */
+    cursor: pointer; /* Add pointer cursor */
+    margin-top: 20px; /* Add margin to separate from other content */
+    margin-left: 25%; /* Move the button to the right side */
+}
+
+#logoutBtn:hover {
+    background: #218838; /* Same hover effect as other buttons */
+}
+
+/* Center the auth pages (login and signup) */
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Center vertically */
+    min-height: 100vh;
+    margin: 0;
+}
+
+.auth-page .container {
+    width: 100%;
+    max-width: 400px; /* Restrict width for better centering */
+    height: auto; /* Override the 100vh height from the original .container */
+}
+
+/* Ensure inputs and buttons remain styled appropriately */
+.auth-page input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.auth-page button {
+    width: 50%;
+    padding: 10px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.auth-page button:hover {
+    background: #218838;
+}
+
+.auth-page a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.auth-page a:hover {
+    text-decoration: underline;
+}
+
+/* Bootstrap compatibility */
+.auth-page .form-control {
+    width: 90%;
+    margin: 10px auto;
+}
+
+.auth-page .btn {
+    width: 50%;
+    margin: 10px auto;
 }

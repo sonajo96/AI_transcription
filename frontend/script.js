@@ -61,65 +61,48 @@ async function login() {
     }
 }
 
-async function transcribeAudioFile() {
-    const fileInput = document.getElementById("audio-file");
-    const file = fileInput.files[0];
+async function transcribeYouTubeVideo() {
+    const videoId = document.getElementById("youtube-video-id").value.trim();
     const token = sessionStorage.getItem("token");
 
-    if (!file) {
-        alert("Please select an audio file.");
+    if (!videoId) {
+        alert("Please enter a YouTube video ID.");
         return;
     }
 
     // Show loading indicator
     const transcriptionStatus = document.getElementById("transcription-status");
-    if (!transcriptionStatus) {
-        console.error("transcription-status element not found!");
-        return;
-    }
-    transcriptionStatus.textContent = "⏳ Transcribing audio... Please wait.";
+    transcriptionStatus.textContent = "⏳ Fetching transcript... Please wait.";
     transcriptionStatus.style.color = "blue";
 
-    const formData = new FormData();
-    formData.append("audio", file);
-
     try {
-        const response = await fetch("http://127.0.0.1:8001/transcribe/audio/", {
+        const response = await fetch("http://127.0.0.1:8001/transcribe/youtube/", {
             method: "POST",
-            headers: { "Authorization": `Bearer ${token}` },
-            body: formData
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ video_id: videoId })
         });
 
-        console.log("Response status:", response.status); // Log the response status
-        console.log("Response headers:", response.headers); // Log the response headers
-
-        // Handle token expiration (401 Unauthorized)
         if (response.status === 401) {
             alert("Your session has expired. Please log in again.");
-            logout(); // Call the logout function to clear the token and redirect to the login page
+            logout();
             return;
         }
 
         if (response.ok) {
             const data = await response.json();
-            console.log("Server Response Data:", data); // Log the full response data
+            
 
-            const audioTranscription = document.getElementById("audio-transcription");
-            if (!audioTranscription) {
-                console.error("audio-transcription element not found!");
-                return;
-            }
-            audioTranscription.textContent = data.transcription;
-
-            transcriptionStatus.textContent = "✅ Transcription Completed!";
+            transcriptionStatus.textContent = "✅ Transcript Fetched!";
             transcriptionStatus.style.color = "green";
         } else {
-            console.error("Server Response Error:", response.status, response.statusText);
-            throw new Error("Failed to transcribe audio.");
+            throw new Error("Failed to fetch transcript.");
         }
     } catch (error) {
-        console.error("Error transcribing audio:", error);
-        transcriptionStatus.textContent = "❌ Failed to transcribe audio. Please try again.";
+        console.error("Error fetching transcript:", error);
+        transcriptionStatus.textContent = "❌ Failed to fetch transcript. Please try again.";
         transcriptionStatus.style.color = "red";
     }
 }
@@ -228,6 +211,15 @@ async function fetchChatHistory() {
         console.error("Error fetching chat history:", error);
     }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const viewChatHistoryBtn = document.getElementById("view-chat-history");
+    if (viewChatHistoryBtn) {
+        viewChatHistoryBtn.addEventListener("click", function () {
+            fetchChatHistory();
+        });
+    }
+});
 
 function checkSession() {
     const token = sessionStorage.getItem("token");

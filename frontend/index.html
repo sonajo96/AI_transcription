@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Video Transcription</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -14,28 +15,36 @@
             <a href="signup.html">Signup</a> | <a href="login.html">Login</a>
         </div>
         
-        <div id="audio-transcription-section">
-            <h2>Transcribe Audio File</h2>
-            <input type="file" id="audio-file" accept="audio/*">
-            <button onclick="transcribeAudioFile()">Upload & Transcribe</button>
-            <p id="transcription-status"></p> <!-- ✅ Added this line -->
-            <p id="audio-transcription"></p>
-        </div>
-        
-        
-        <div id="qa-section">
-            <h2>Ask AI</h2>
-            <input type="text" id="question" placeholder="Enter your question">
-            <button onclick="handleAskQuestion()">Ask</button>
-            <p id="answer"></p>
-        </div>
-        
-        <div>
-            <h2>Chat History</h2>
-            <button onclick="fetchChatHistory()">Get Chat History</button>
-            <ul id="chat-history"></ul>
+        <div id="main-content">
+            <!-- Chat History on the Left (Full Height) -->
+            <div id="chat-history-section">
+                <h2>Chat History</h2>
+                <button id="view-chat-history">View Chat History</button>
+                <ul id="chat-history"></ul>
+            </div>
+
+            <!-- Center Section for Transcribe Video and Ask AI -->
+            <div id="center-section">
+                <!-- Transcribe YouTube Video -->
+                <div id="youtube-transcription-section">
+                    <h2>Transcribe YouTube Video</h2>
+                    <input type="text" id="youtube-video-id" placeholder="Enter YouTube Video ID">
+                    <button onclick="transcribeYouTubeVideo()">Fetch Transcript</button>
+                    <p id="transcription-status"></p>
+                    <p id="youtube-transcription"></p>
+                </div>
+
+                <!-- Ask AI -->
+                <div id="qa-section">
+                    <h2>Ask AI</h2>
+                    <input type="text" id="question" placeholder="Enter your question">
+                    <button onclick="handleAskQuestion()">Ask</button>
+                    <p id="answer"></p>
+                </div>
+            </div>
         </div>
 
+        <!-- Logout Button -->
         <div>
             <button id="logoutBtn">Logout</button>
         </div>

@@ -1,45 +1,34 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.video import Video
+from app.schemas import YouTubeTranscriptionRequest
 from app.services.video_services import transcribe_audio_file
 from app.auth import get_current_user
 
 router = APIRouter()
-
-@router.post("/transcribe/audio/")
-async def transcribe_audio(
-    audio: UploadFile = File(...),
+@router.post("/transcribe/youtube/")
+async def transcribe_youtube_video(
+    request: YouTubeTranscriptionRequest,
     db: Session = Depends(get_db),
-    current_user_id: int = Depends(get_current_user)
+    current_user_id: int = Depends(get_current_user)  # Fetch the authenticated user's ID
 ):
-    """
-    Endpoint to upload an audio file, transcribe it into text, and optionally save it.
-    
-    Args:
-        audio (UploadFile): The audio file to transcribe.
-        db (Session): Database session dependency.
-        current_user_id (int): ID of the authenticated user.
-    
-    Returns:
-        dict: Contains the transcription text.
-    """
-    # Transcribe the audio file
-    transcription = transcribe_audio_file(audio)
+    transcription = transcribe_audio_file(request.video_id)
+    print(f"Received video ID: {request.video_id}")
+    print("Transcription:", transcription)
 
-    # Optionally save the transcription with a video entry (assuming a URL or placeholder)
-    video = Video(
-        user_id=current_user_id,
-        video_url=f"audio://{audio.filename}",  # Placeholder; adjust as needed
+    # Save the transcription to the database
+    video_entry = Video(
+        user_id=current_user_id,  # Use the authenticated user's ID
+        video_url=f"https://www.youtube.com/watch?v={request.video_id}",
         transcription=transcription
     )
     
     try:
-        db.add(video)
+        db.add(video_entry)
         db.commit()
-        db.refresh(video)
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to save transcription: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to save video entry: {str(e)}")
 
-    return {"transcription": transcription, "video_id": video.id}
+    return {"message": "Transcription saved successfully"}

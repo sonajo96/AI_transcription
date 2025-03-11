@@ -1,60 +1,32 @@
 import warnings
 warnings.simplefilter("ignore",category=FutureWarning)
 
-import os
-import whisper
-from fastapi import UploadFile, HTTPException
+from youtube_transcript_api import YouTubeTranscriptApi
+from fastapi import HTTPException
 from app.utils.logger import logger
 
-model = whisper.load_model("base")
-
-TMP_FOLDER = "tmp"
-os.makedirs(TMP_FOLDER, exist_ok=True)
-
-def transcribe_audio_file(audio_file: UploadFile) -> str:
+def transcribe_audio_file(video_id: str) -> str:
     """
-    Transcribes an uploaded audio file into text.
-    
+    Fetches the transcript of a YouTube video using the YouTubeTranscriptApi.
+
     Args:
-        audio_file (UploadFile): The audio file uploaded by the user.
-    
+        video_id (str): The ID of the YouTube video.
+
     Returns:
         str: The transcribed text.
-    
+
     Raises:
-        HTTPException: If transcription fails.
+        HTTPException: If transcript retrieval fails.
     """
-    temp_path = os.path.join(TMP_FOLDER, audio_file.filename)
-    
     try:
-
-        # Log start of transcription
-        logger.info(f"Starting transcription for file: {audio_file.filename}")
-
-        # Save the uploaded file temporarily
-        with open(temp_path, "wb") as f:
-            f.write(audio_file.file.read())
-
-        # Ensure the file is closed before transcription
-        audio_file.file.close()
-
-        # Transcribe the audio file
-        result = model.transcribe(temp_path)
-        transcription_text = result["text"]
-
-         # Log successful transcription
-        logger.info(f"Transcription completed for file: {audio_file.filename}")
-        logger.info(f"Transcription: {transcription_text}")
+        logger.info(f"Fetching transcript for YouTube video ID: {video_id}")
+        
+        get_transcribe = YouTubeTranscriptApi.get_transcript(video_id)
+        final_transcribe = " ".join(each_transcribe['text'] for each_transcribe in get_transcribe)
+        
+        logger.info(f"Transcript fetched successfully for video ID: {video_id}")
+        return final_transcribe
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to transcribe audio file: {str(e)}")
-    
-    finally:
-        # Clean up the temporary file
-        if os.path.exists(temp_path):
-            try:
-                os.remove(temp_path)
-            except PermissionError:
-                pass  # Ignore if file is still in use
-
-    return transcription_text
+        logger.error(f"Failed to fetch transcript for video ID {video_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch transcript: {str(e)}")
